@@ -11,13 +11,27 @@ pipeline {
     }
 
     stages {
+        
+        // 그저 script 실행해봄
+        stage('Just Test Script') {
+            agent any
+            
+            steps {
+              script {
+                def browsers = ['chrome', 'firefox']
+                for (int i=0;i<browsers.size();++i){
+                  echo "Testing the ${browsers[i]} browser"
+                }
+              }
+            }
+        }
+
         // 레포지토리를 다운로드 받음
         stage('Prepare') {
             agent any
             
             steps {
                 echo "${env.BRANCH_NAME}"
-                echo "${env.CHANGE_ID}"
                 echo "${params.Greeting} World"
                 echo "Clonning Repository' "
                 git url: 'https://github.com/frontalnh/cicd.git',
@@ -40,6 +54,21 @@ pipeline {
                   echo "after all other post condition"
                 }
             }
+        }
+
+        stage('Build Server') {
+          agent any
+
+          steps {
+            dir ('./server'){
+              script {
+                docker.withRegistry('551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver', 'ecr:ap-northeast-2:jenkinsaws'){
+                  def image = docker.build '551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver'
+                  image.push('latest')
+                }
+              }
+            }
+          } 
         }
     }
 }

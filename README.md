@@ -14,6 +14,11 @@ alternatives --config java
 service jenkins start
 ```
 
+## 설치해야할 플러그인들
+
+AWS Global Configuration
+
+
 초기 비밀번호로 로그인 하기
 
 ```sh

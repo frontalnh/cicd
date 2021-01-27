@@ -33,36 +33,6 @@ pipeline {
           }
         }
 
-        // 레포지토리를 다운로드 받음ㅏ 
-        stage('Prepare') {
-            agent any
-            
-            steps {
-                echo '${params.Greeting} World'
-                echo 'Clonning Repository'  
-
-                git url: 'https://github.com/frontalnh/temp.git',
-                    branc: 'master',
-                    credentialsId: 'jenkinsgit'
-            }
-
-            post {`
-                // If Maven was able to run the tests, even if some of the test
-                // failed, record the test results and archive the jar file.
-                success {
-                    echo 'Successfully Cloned Repository'
-                }
-
-                always {
-                  echo "i tried..."
-                }
-
-                cleanup {
-                  echo "after all other post condition"
-                }
-            }
-        }
-        
         // aws s3 에 파일을 올림
         stage('Deploy Frontend') {
           steps {
@@ -137,11 +107,6 @@ pipeline {
           agent any
           steps {
             script {
-              def browsers = ['chrome', 'firefox']
-              for (int i=0;i<browsers.size();++i){
-                echo 'Testing the ${browsers[i]} browser'
-              }
-              
               docker.withRegistry('',registryCredential){
                 def image = docker.build imagename
                 image.push('latest')
