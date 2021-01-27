@@ -140,6 +140,10 @@ pipeline {
                   
             }
 
+            failure {
+              error 'This pipeline stops here...'
+            }
+
             cleanup {
               echo "Clean up docker images"
               // sh '''
