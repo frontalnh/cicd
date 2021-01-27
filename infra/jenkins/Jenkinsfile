@@ -67,9 +67,6 @@ pipeline {
             dir ('./server'){
               script {
                 withAWS(region:'ap-northeast-2', credentials:'jenkinsaws') {
-                  // sh '''
-                  // aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 551342549342.dkr.ecr.ap-northeast-2.amazonaws.com
-                  // '''
                   def login = ecrLogin()
                   sh "${login}"
                   def image = docker.build '551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver'
@@ -77,7 +74,23 @@ pipeline {
                 }
               }
             }
-          } 
+          }
+
+          post {
+            success {
+              mail  to: 'frontalnh@gmail.com',
+                    subject: "Deploy Success",
+                    body: "Successfully deployed!"
+                  
+            }
+
+            cleanup {
+              echo "Clean up docker images"
+              sh '''
+              docker rmi -f $(docker images -aq)
+              '''
+            }
+          }
         }
     }
 }
