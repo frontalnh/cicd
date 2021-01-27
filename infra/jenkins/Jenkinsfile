@@ -145,12 +145,13 @@ pipeline {
           agent {
             docker {
               image 'node:latest'
-              args "-v ${pwd()}/server:/app -w '/app'"
+              args "-v ${pwd()}/server:/app"
             }
           }
 
           steps {
             sh '''
+            cd server&&
             npm install&&
             ls&&
             cat package.json&&
