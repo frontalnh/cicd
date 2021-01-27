@@ -145,7 +145,7 @@ pipeline {
         stage('Test server') {
           agent {
             docker {
-              image 'node:latest'
+              image 'node:12.16.3'
               args "-v ${pwd()}/server:/app"
             }
           }
