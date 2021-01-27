@@ -69,7 +69,7 @@ pipeline {
             }
         }
 
-        stage('Lint and Test Server') {
+        stage('Just test docker agent') {
           agent {
             docker {
               image 'node:latest'
@@ -78,15 +78,28 @@ pipeline {
           }
 
           steps {
-              dir ('./server'){
-                  sh '''
-                  npm install&&
-                  npm run lint&&
-                  npm run test
-                  '''
-              }
+            sh 'node -v'
           }
         }
+
+        // stage('Lint and Test Server') {
+        //   agent {
+        //     docker {
+        //       image 'node:latest'
+        //       args "--build-args env=${params.env}"
+        //     }
+        //   }
+
+        //   steps {
+        //       dir ('./server'){
+        //           sh '''
+        //           npm install&&
+        //           npm run lint&&
+        //           npm run test
+        //           '''
+        //       }
+        //   }
+        // }
 
         stage('Build Server') {
           agent any
