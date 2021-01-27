@@ -81,25 +81,6 @@ pipeline {
           }
         }
 
-        // stage('Lint and Test Server') {
-        //   agent {
-        //     docker {
-        //       image 'node:latest'
-        //       args "--build-args env=${params.env}"
-        //     }
-        //   }
-
-        //   steps {
-        //       dir ('./server'){
-        //           sh '''
-        //           npm install&&
-        //           npm run lint&&
-        //           npm run test
-        //           '''
-        //       }
-        //   }
-        // }
-
         stage('Deploy frontend') {
           steps {
             dir ('./website') {
@@ -111,6 +92,19 @@ pipeline {
                 }
               }
             }
+          }
+
+          post {
+              // If Maven was able to run the tests, even if some of the test
+              // failed, record the test results and archive the jar file.
+              success {
+                  echo 'Successfully Cloned Repository'
+
+                  mail  to: 'frontalnh@gmail.com',
+                        subject: "Deploy Frontend Success",
+                        body: "Successfully deployed frontend!"
+
+              }
           }
         }
 
@@ -127,7 +121,7 @@ pipeline {
                 withAWS(region:'ap-northeast-2', credentials:'jenkinsaws') {
                   def login = ecrLogin()
                   sh "${login}"
-                  def image = docker.build('551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver', "--build-arg env=${params.env}")
+                  def image = docker.build('551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver').inside( "--build-arg env=${params.env}")
                   image.push('latest')
                 }
               }
