@@ -16,7 +16,8 @@
     "url": "https://github.com/frontalnh/cicd/issues"
   },
   "homepage": "https://github.com/frontalnh/cicd#readme",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "eslint": "^7.18.0"
   }
 }
