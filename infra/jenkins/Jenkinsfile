@@ -121,8 +121,12 @@ pipeline {
                 withAWS(region:'ap-northeast-2', credentials:'jenkinsaws') {
                   def login = ecrLogin()
                   sh "${login}"
-                  def image = docker.build('551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver').inside( "--build-arg env=${params.env}")
-                  image.push('latest')
+                  sh """
+                  docker build --build-arg env=${params.env} -t 551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver .
+                  docker push 551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver
+                  """
+                  // def image = docker.build('551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver')
+                  // image.push('latest')
                 }
               }
             }
