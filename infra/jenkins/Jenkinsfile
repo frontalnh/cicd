@@ -16,7 +16,6 @@ pipeline {
     }
 
     stages {
-        
         // 그저 script 실행해봄
         stage('Just Test Script') {
             agent any
