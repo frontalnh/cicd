@@ -1,7 +1,7 @@
 ## Jenkins 설치하기
 
 ```sh
-yum update -y
+sudo yum update -y
 # Jenkins 패키지 추가
 sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins.io/redhat/jenkins.repo &&
 sudo rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key
@@ -10,8 +10,18 @@ sudo rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key
 sudo yum install -y java-1.8.0-openjdk jenkins git docker
 
 # 자바 버전 8 로 설정
-alternatives --config java
-service jenkins start
+sudo alternatives --config java
+sudo service jenkins start
+
+# 초기 비밀번호 확인
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+# docker 그룹에 jenkins 추가
+sudo usermod -aG docker jenkins
+sudo systemctl start docker
+sudo service docker start
+sudo chmod 666 /var/run/docker.sock
+sudo -su jenkins
 ```
 
 ## 설치해야할 플러그인들

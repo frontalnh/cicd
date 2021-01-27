@@ -63,6 +63,10 @@ pipeline {
             sh '''
             docker ps
             '''
+            withAWS(region:'ap-northeast-2', credentials='jenkinsgit') {
+                // do something
+                sh 'aws help'
+            }
             dir ('./server'){
               script {
                 def login = ecrLogin()
