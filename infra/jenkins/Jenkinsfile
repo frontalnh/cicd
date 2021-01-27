@@ -67,6 +67,9 @@ pipeline {
             dir ('./server'){
               script {
                 withAWS(region:'ap-northeast-2', credentials:'jenkinsgit') {
+                  sh '''
+                  aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 551342549342.dkr.ecr.ap-northeast-2.amazonaws.com
+                  '''
                   def login = ecrLogin()
                   echo "${login}"
                   def image = docker.build '551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver'
