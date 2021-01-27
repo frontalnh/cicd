@@ -34,6 +34,7 @@ pipeline {
                 }
             }
             steps {
+              echo "$PWD"
               script {
                 def browsers = ['chrome', 'firefox']
                 for (int i=0;i<browsers.size();++i){
@@ -140,6 +141,19 @@ pipeline {
             sh 'node -v'
           }
         }
+
+        // stage('Test server') {
+        //   agent {
+        //     docker {
+        //       image 'node:latest'
+        //       args '-v $PWD/:/app/.m2'
+        //     }
+        //   }
+
+        //   steps {
+        //     sh 'node -v'
+        //   }
+        // }
 
         stage('Deploy frontend') {
           steps {

@@ -13,7 +13,7 @@ ENV APP_ENV=$env
 
 COPY . /app
 
-EXPOSE 3001
+EXPOSE 80
 
 RUN echo 'Build Completed'
 
