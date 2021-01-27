@@ -63,7 +63,7 @@ pipeline {
             sh '''
             docker ps
             '''
-            withAWS(region:'ap-northeast-2', credentials='jenkinsgit') {
+            withAWS(region:'ap-northeast-2', credentials:'jenkinsgit') {
                 // do something
                 sh 'aws help'
             }
