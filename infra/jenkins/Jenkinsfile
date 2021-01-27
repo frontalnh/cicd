@@ -138,9 +138,9 @@ pipeline {
 
             cleanup {
               echo "Clean up docker images"
-              sh '''
-              docker rmi -f $(docker images -aq)
-              '''
+              // sh '''
+              // docker rmi -f $(docker images -aq)
+              // '''
             }
           }
         }
