@@ -63,16 +63,15 @@ pipeline {
             sh '''
             docker ps
             '''
-            withAWS(region:'ap-northeast-2', credentials:'jenkinsgit') {
-                // do something
-                sh 'aws help'
-            }
+
             dir ('./server'){
               script {
-                def login = ecrLogin()
-                echo "${login}"
-                def image = docker.build '551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver'
-                image.push('latest')
+                withAWS(region:'ap-northeast-2', credentials:'jenkinsgit') {
+                  def login = ecrLogin()
+                  echo "${login}"
+                  def image = docker.build '551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver'
+                  image.push('latest')
+                }
               }
             }
           } 
