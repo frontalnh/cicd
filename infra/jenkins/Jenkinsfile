@@ -9,11 +9,17 @@ pipeline {
     parameters {
       string(name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet to the world?')
       string(name: 'env', defaultValue: 'dev', description: 'Type of environments: prod/qa/dev')
+      text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
+      booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
+      choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], defaultValue: 'ONE', description: 'Pick something')
+      password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
     }
 
     environment {
       AWS_DEFAULT_REGION = 'ap-northeast-2'
     }
+
+    options { retry(3) }
 
     stages {
         // 그저 script 실행해봄
@@ -33,7 +39,9 @@ pipeline {
         // 레포지토리를 다운로드 받음
         stage('Prepare') {
             agent any
-            
+            options {
+                timeout(time: 1, unit: 'HOURS') 
+            }
             steps {
                 echo "${env.BRANCH_NAME}"
                 echo "${params.Greeting} World"
@@ -66,6 +74,51 @@ pipeline {
                   echo "after all other post condition"
                 }
             }
+        }
+
+        stage('Only in master branch') {
+          when {
+            expression {
+              return env.BRANCH_NAME == 'master';
+            }
+          }
+
+          steps {
+            echo 'This is master branch!!'
+          }
+        }
+
+        stage('Only in production environment') {
+          when {
+            environment name: 'env', value: 'prod'
+          }
+
+          steps {
+            echo 'This is production environment'
+          }
+        }
+
+        stage('some parallel stage') {
+          parallel {
+            stage ('parallel stage 1') {
+              when {
+                environment name: 'env', value:'prod'
+              }
+
+              steps {
+                echo 'This is prod'
+              }
+            }
+            stage ('parallel stage 2') {
+              when {
+                environment name: 'env', value:'dev'
+              }
+
+              steps {
+                echo 'This is dev'
+              }
+            }
+          }
         }
 
         stage('Just test docker agent') {
