@@ -8,9 +8,8 @@ COPY ./package.json /app/package.json
 
 RUN npm install
 
-ENV APP_ENV=prod
-ENV AWS_ACCESS_KEY_ID='hello'
-ENV AWS_SECRET_ACCESS_KEY='secret'
+ARG env
+ENV APP_ENV=$env
 
 COPY . /app
 
@@ -19,4 +18,3 @@ EXPOSE 3001
 RUN echo 'Build Completed'
 
 CMD ["npm","start"]
-

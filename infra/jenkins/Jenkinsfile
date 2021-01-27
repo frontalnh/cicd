@@ -8,6 +8,7 @@ pipeline {
     // 파라미터 설
     parameters {
       string(name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet to the world?')
+      string(name: 'env', defaultValue: 'dev', description: 'Type of environments: prod/qa/dev')
     }
 
     environment {
@@ -72,6 +73,7 @@ pipeline {
           agent {
             docker {
               image 'node:latest'
+              args "--build-args env=${params.env}"
             }
           }
 
@@ -99,7 +101,7 @@ pipeline {
                 withAWS(region:'ap-northeast-2', credentials:'jenkinsaws') {
                   def login = ecrLogin()
                   sh "${login}"
-                  def image = docker.build '551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver'
+                  def image = docker.build('551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver', "--build-arg env=${params.env}")
                   image.push('latest')
                 }
               }
