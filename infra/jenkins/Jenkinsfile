@@ -60,6 +60,10 @@ pipeline {
           agent any
 
           steps {
+            script {
+              def login = ecrLogin()
+              echo "${login}"
+            }
             withAWS(region:'ap-northeast-2') {
                 // do something
                 sh 'aws help'
