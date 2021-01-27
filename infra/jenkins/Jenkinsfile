@@ -145,7 +145,7 @@ pipeline {
           agent {
             docker {
               image 'node:latest'
-              args "-v ${pwd()}/server:/app"
+              args "-v ${pwd()}/server:/app -w '/app'"
             }
           }
 
