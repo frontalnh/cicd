@@ -1,0 +1,201 @@
+pipeline {
+    // Agent Section
+    // 젠킨스는 많은 일들을 해야 하기 때문에 혼자 하기 버겁다.
+    // 여러 slave node 를 두고 일을 시킬 수 있는데, 이처럼 어떤 젠킨스가 일을 하게 할 것인지를 지정한다.
+    // 젠킨스 노드 관리에서 새로 노드를 띄우거나 혹은 docker 이미지등을 통해 서 처리할 수 있음
+    agent any
+
+    // 파라미터 설
+    parameters {
+      string(name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet to the world?')
+    }
+
+    triggers {
+        pollSCM('*/3 * * * *')
+    }
+
+    // 환경변수 설정
+    environment {
+      AWS_ACCESS_KEY_ID = credentials('awsAccessKeyId')
+      AWS_SECRET_ACCESS_KEY = credentials('awsSecretAccessKey')
+      AWS_DEFAULT_REGION = 'ap-northeast-2'
+      HOME = '.' // Avoid npm root owned
+    }
+
+    stages {
+        stage('Test on Linux') {
+          agent {
+            label 'linux'
+          }
+
+          steps {
+            sh 'ls' 
+          }
+        }
+
+        // 레포지토리를 다운로드 받음ㅏ 
+        stage('Prepare') {
+            agent any
+            
+            steps {
+                echo '${params.Greeting} World'
+                echo 'Clonning Repository'  
+
+                git url: 'https://github.com/frontalnh/temp.git',
+                    branc: 'master',
+                    credentialsId: 'jenkinsgit'
+            }
+
+            post {`
+                // If Maven was able to run the tests, even if some of the test
+                // failed, record the test results and archive the jar file.
+                success {
+                    echo 'Successfully Cloned Repository'
+                }
+
+                always {
+                  echo "i tried..."
+                }
+
+                cleanup {
+                  echo "after all other post condition"
+                }
+            }
+        }
+        
+        // aws s3 에 파일을 올림
+        stage('Deploy Frontend') {
+          steps {
+            echo 'Deploying Frontend'
+            // 프론트엔드 디렉토리의 정적파일들을 S3 에 올림, 이 전에 반드시 EC2 instance profile 을 등록해야함.
+            dir ('./website'){
+                sh '''
+                aws s3 sync ./ s3://namhoontest
+                '''
+            }
+          }
+
+          post {
+              // If Maven was able to run the tests, even if some of the test
+              // failed, record the test results and archive the jar file.
+              success {
+                  echo 'Successfully Cloned Repository'
+
+                  mail  to: 'frontalnh@gmail.com',
+                        subject: "Deploy Frontend Success",
+                        body: "Successfully deployed frontend!"
+
+              }
+
+              failure {
+                  echo 'I failed :('
+
+                  mail  to: 'frontalnh@gmail.com',
+                        subject: "Failed Pipelinee",
+                        body: "Something is wrong with deploy frontend"
+              }
+          }
+        }
+        
+        stage('Lint Backend') {
+            // Docker plugin and Docker Pipeline 두개를 깔아야 사용가능!
+            agent {
+              docker {
+                image 'node:latest'
+              }
+            }
+            
+            steps {
+              dir ('./server'){
+                  sh '''
+                  npm install&&
+                  npm run lint
+                  '''
+              }
+            }
+        }
+        
+        stage('Test Backend') {
+          agent {
+            docker {
+              image 'node:latest'
+            }
+          }
+          steps {
+            echo 'Test Backend'
+
+            dir ('./server'){
+                sh '''
+                npm install
+                npm run test
+                '''
+            }
+          }
+        }
+
+        stage('Build server docker image') {
+          agent any
+          steps {
+            script {
+              def browsers = ['chrome', 'firefox']
+              for (int i=0;i<browsers.size();++i){
+                echo 'Testing the ${browsers[i]} browser'
+              }
+              
+              docker.withRegistry('',registryCredential){
+                def image = docker.build imagename
+                image.push('latest')
+              }
+            }
+          } 
+        }
+        
+        stage('Bulid Backend') {
+          agent {
+            docker {
+              image 'node:latest'
+              args '-v $HOME/.m2:/root/.m2'
+            }
+          }
+          steps {
+            echo 'Build Backend'
+
+            dir ('./server'){
+                sh """
+                docker build . -t server --build-arg env=${PROD}
+                """
+            }
+          }
+
+          post {
+            failure {
+              error 'This pipeline stops here...'
+            }
+          }
+        }
+        
+        stage('Deploy Backend') {
+          agent any
+
+          steps {
+            echo 'Build Backend'
+
+            dir ('./server'){
+                sh '''
+                docker rm -f $(docker ps -aq)
+                docker run -p 80:80 -d server
+                '''
+            }
+          }
+
+          post {
+            success {
+              mail  to: 'frontalnh@gmail.com',
+                    subject: "Deploy Success",
+                    body: "Successfully deployed!"
+                  
+            }
+          }
+        }
+    }
+}
