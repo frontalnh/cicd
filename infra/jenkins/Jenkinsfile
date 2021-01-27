@@ -16,10 +16,10 @@ pipeline {
             agent any
             
             steps {
-                echo '${env.BRANCH_NAME}'
-                echo '${env.CHANGE_ID}'
-                echo '${params.Greeting} World'
-                echo 'Clonning Repository'  
+                echo "${env.BRANCH_NAME}"
+                echo "${env.CHANGE_ID}"
+                echo "${params.Greeting} World"
+                echo "Clonning Repository' "
             }
 
             post {
