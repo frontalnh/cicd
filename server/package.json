@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-     "build": "tsc",
-     "start": "node ./dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "node ./dist/index.js",
+    "test": "jest .",
+    "lint": "eslint index.ts"
   },
   "author": "",
   "license": "ISC",
