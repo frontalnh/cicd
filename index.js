@@ -1,1 +1,1 @@
-console.log("hello");a=123;
+console.log("hello");let a=123;
