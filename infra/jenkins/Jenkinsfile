@@ -62,7 +62,7 @@ pipeline {
           steps {
             dir ('./server'){
               script {
-                docker.withRegistry('551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver', 'ecr:ap-northeast-2:jenkinsaws'){
+                docker.withRegistry('551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver', 'jenkinsaws'){
                   def image = docker.build '551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver'
                   image.push('latest')
                 }
