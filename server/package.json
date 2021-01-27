@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node ./dist/index.js",
-    "test": "npx jest .",
+    "test": "node_modules/.bin/jest .",
     "lint": "npx eslint index.ts"
   },
   "author": "",
