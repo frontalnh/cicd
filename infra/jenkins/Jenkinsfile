@@ -60,6 +60,9 @@ pipeline {
           agent any
 
           steps {
+            sh '''
+            docker ps
+            '''
             dir ('./server'){
               script {
                 def login = ecrLogin()
