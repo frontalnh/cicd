@@ -10,6 +10,10 @@ pipeline {
       string(name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet to the world?')
     }
 
+    environment {
+      AWS_DEFAULT_REGION = 'ap-northeast-2'
+    }
+
     stages {
         
         // 그저 script 실행해봄
@@ -46,6 +50,14 @@ pipeline {
                     echo 'Successfully Cloned Repository'
                 }
 
+                failure {
+                    echo 'Failed pulling from SCM server'
+
+                    mail  to: 'frontalnh@gmail.com',
+                          subject: "Failed Pipelinee",
+                          body: "Something is wrong with deploy frontend"
+                }
+
                 always {
                   echo "i tried..."
                 }
@@ -54,6 +66,24 @@ pipeline {
                   echo "after all other post condition"
                 }
             }
+        }
+
+        stage('Lint and Test Server') {
+          agent {
+            docker {
+              image 'node:latest'
+            }
+          }
+
+          steps {
+              dir ('./server'){
+                  sh '''
+                  npm install&&
+                  npm run lint&&
+                  npm run test
+                  '''
+              }
+          }
         }
 
         stage('Build Server') {

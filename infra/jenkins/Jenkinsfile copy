@@ -1,25 +1,6 @@
 pipeline {
-    // Agent Section
-    // 젠킨스는 많은 일들을 해야 하기 때문에 혼자 하기 버겁다.
-    // 여러 slave node 를 두고 일을 시킬 수 있는데, 이처럼 어떤 젠킨스가 일을 하게 할 것인지를 지정한다.
-    // 젠킨스 노드 관리에서 새로 노드를 띄우거나 혹은 docker 이미지등을 통해 서 처리할 수 있음
-    agent any
-
-    // 파라미터 설
-    parameters {
-      string(name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet to the world?')
-    }
-
     triggers {
         pollSCM('*/3 * * * *')
-    }
-
-    // 환경변수 설정
-    environment {
-      AWS_ACCESS_KEY_ID = credentials('awsAccessKeyId')
-      AWS_SECRET_ACCESS_KEY = credentials('awsSecretAccessKey')
-      AWS_DEFAULT_REGION = 'ap-northeast-2'
-      HOME = '.' // Avoid npm root owned
     }
 
     stages {
@@ -56,63 +37,7 @@ pipeline {
                         body: "Successfully deployed frontend!"
 
               }
-
-              failure {
-                  echo 'I failed :('
-
-                  mail  to: 'frontalnh@gmail.com',
-                        subject: "Failed Pipelinee",
-                        body: "Something is wrong with deploy frontend"
-              }
           }
-        }
-        
-        stage('Lint Backend') {
-            // Docker plugin and Docker Pipeline 두개를 깔아야 사용가능!
-            agent {
-              docker {
-                image 'node:latest'
-              }
-            }
-            
-            steps {
-              dir ('./server'){
-                  sh '''
-                  npm install&&
-                  npm run lint
-                  '''
-              }
-            }
-        }
-        
-        stage('Test Backend') {
-          agent {
-            docker {
-              image 'node:latest'
-            }
-          }
-          steps {
-            echo 'Test Backend'
-
-            dir ('./server'){
-                sh '''
-                npm install
-                npm run test
-                '''
-            }
-          }
-        }
-
-        stage('Build server docker image') {
-          agent any
-          steps {
-            script {
-              docker.withRegistry('',registryCredential){
-                def image = docker.build imagename
-                image.push('latest')
-              }
-            }
-          } 
         }
         
         stage('Bulid Backend') {
