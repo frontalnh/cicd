@@ -73,7 +73,6 @@ pipeline {
           agent {
             docker {
               image 'node:latest'
-              args "--build-args env=${params.env}"
             }
           }
 
@@ -100,6 +99,20 @@ pipeline {
         //       }
         //   }
         // }
+
+        stage('Deploy frontend') {
+          steps {
+            dir ('./website') {
+              script {
+                withAWS(region:'ap-northeast-2', credentials:'jenkinsaws') {
+                  sh '''
+                  aws s3 sync ./ s3://namhoontest
+                  '''
+                }
+              }
+            }
+          }
+        }
 
         stage('Build Server') {
           agent any
