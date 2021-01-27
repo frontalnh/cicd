@@ -11,7 +11,7 @@ pipeline {
     }
 
     stages {
-        // 레포지토리를 다운로드 받음ㅏ 
+        // 레포지토리를 다운로드 받음
         stage('Prepare') {
             agent any
             
@@ -20,6 +20,9 @@ pipeline {
                 echo "${env.CHANGE_ID}"
                 echo "${params.Greeting} World"
                 echo "Clonning Repository' "
+                git url: 'https://github.com/frontalnh/cicd.git',
+                    branch: "${env.BRANCH_NAME}",
+                    credentialsId: 'jenkinsgit'
             }
 
             post {
