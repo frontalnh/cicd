@@ -18,6 +18,8 @@
   "homepage": "https://github.com/frontalnh/cicd#readme",
   "dependencies": {},
   "devDependencies": {
-    "eslint": "^7.18.0"
+    "eslint": "^7.18.0",
+    "eslint-plugin-react": "^7.22.0",
+    "jest": "^26.6.3"
   }
 }
