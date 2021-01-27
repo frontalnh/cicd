@@ -10,18 +10,6 @@ pipeline {
       string(name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet to the world?')
     }
 
-    triggers {
-        pollSCM('*/3 * * * *')
-    }
-
-    // 환경변수 설정
-    environment {
-      AWS_ACCESS_KEY_ID = credentials('awsAccessKeyId')
-      AWS_SECRET_ACCESS_KEY = credentials('awsSecretAccessKey')
-      AWS_DEFAULT_REGION = 'ap-northeast-2'
-      HOME = '.' // Avoid npm root owned
-    }
-
     stages {
         // 레포지토리를 다운로드 받음ㅏ 
         stage('Prepare') {
@@ -32,10 +20,6 @@ pipeline {
                 echo '${env.CHANGE_ID}'
                 echo '${params.Greeting} World'
                 echo 'Clonning Repository'  
-
-                git url: 'https://github.com/frontalnh/cicd.git',
-                    branch: 'master',
-                    credentialsId: 'jenkinsgit'
             }
 
             post {`
