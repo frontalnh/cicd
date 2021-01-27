@@ -153,6 +153,7 @@ pipeline {
             sh '''
             npm install&&
             ls&&
+            cat package.json&&
             npm run test
             '''
           }
