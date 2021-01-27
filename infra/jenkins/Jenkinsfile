@@ -152,6 +152,7 @@ pipeline {
           steps {
             sh '''
             npm install&&
+            ls&&
             npm run test
             '''
           }
