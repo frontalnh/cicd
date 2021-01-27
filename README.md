@@ -29,9 +29,3 @@ sudo -su jenkins
 AWS Global Configuration: Credential 에 AWS credential 등록하게 해줌
 Docker Pipeline: 파이프라인에서 도커 명령어 사용하게 해줌
 Pipeline: AWS Steps
-
-초기 비밀번호로 로그인 하기
-
-```sh
-cat /var/lib/jenkins/secrets/initailAdminPassword
-```

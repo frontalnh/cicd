@@ -1,2 +1,0 @@
-this is file for master branch
-master line

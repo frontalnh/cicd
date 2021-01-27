@@ -97,6 +97,7 @@ pipeline {
 
         stage('Only in production environment') {
           when {
+            // build ini condition
             environment name: 'env', value: 'prod'
           }
 
