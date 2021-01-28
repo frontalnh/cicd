@@ -1,0 +1,236 @@
+pipeline {
+    // Agent Section
+    // 젠킨스는 많은 일들을 해야 하기 때문에 혼자 하기 버겁다.
+    // 여러 slave node 를 두고 일을 시킬 수 있는데, 이처럼 어떤 젠킨스가 일을 하게 할 것인지를 지정한다.
+    // 젠킨스 노드 관리에서 새로 노드를 띄우거나 혹은 docker 이미지등을 통해 서 처리할 수 있음
+    agent any
+
+    // 파라미터 설
+    parameters {
+      string(name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet to the world?')
+      string(name: 'env', defaultValue: 'dev', description: 'Type of environments: prod/qa/dev')
+      text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
+      booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
+      choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
+      password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+    }
+
+    environment {
+      AWS_DEFAULT_REGION = 'ap-northeast-2'
+      HOME = '.'
+    }
+
+    options { retry(3) }
+
+    stages {
+        // 그저 script 실행해봄
+        stage('Just Test Script') {
+            agent any
+            // input {
+            //     message "Should we continue?"
+            //     ok "Yes, we should."
+            //     submitter "alice,bob"
+            //     parameters {
+            //         string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
+            //     }
+            // }
+            steps {
+              script {
+                def browsers = ['chrome', 'firefox']
+                for (int i=0;i<browsers.size();++i){
+                  echo "Testing the ${browsers[i]} browser"
+                }
+              }
+            }
+        }
+
+        // 레포지토리를 다운로드 받음
+        stage('Prepare') {
+            agent any
+            options {
+                timeout(time: 1, unit: 'HOURS') 
+            }
+            steps {
+                echo "${env.BRANCH_NAME}"
+                echo "${params.Greeting} World"
+                echo "Clonning Repository' "
+                git url: 'https://github.com/frontalnh/cicd.git',
+                    branch: "${env.BRANCH_NAME}",
+                    credentialsId: 'jenkinsgit'
+            }
+
+            post {
+                // If Maven was able to run the tests, even if some of the test
+                // failed, record the test results and archive the jar file.
+                success {
+                    echo 'Successfully Cloned Repository'
+                }
+
+                failure {
+                    echo 'Failed pulling from SCM server'
+
+                    mail  to: 'frontalnh@gmail.com',
+                          subject: "Failed Pipelinee",
+                          body: "Something is wrong with deploy frontend"
+                }
+
+                always {
+                  echo "i tried..."
+                }
+
+                cleanup {
+                  echo "after all other post condition"
+                }
+            }
+        }
+
+        stage('Only in master branch') {
+          when {
+            expression {
+              return env.BRANCH_NAME == 'master';
+            }
+          }
+
+          steps {
+            echo 'This is master branch!!'
+          }
+        }
+
+        stage('Only in production environment') {
+          when {
+            // build ini condition
+            environment name: 'env', value: 'prod'
+          }
+
+          steps {
+            echo 'This is production environment'
+          }
+        }
+
+        stage('some parallel stage') {
+          parallel {
+            stage ('parallel stage 1') {
+              when {
+                environment name: 'env', value:'prod'
+              }
+
+              steps {
+                echo 'This is prod'
+              }
+            }
+            stage ('parallel stage 2') {
+              when {
+                environment name: 'env', value:'dev'
+              }
+
+              steps {
+                echo 'This is dev'
+              }
+            }
+          }
+        }
+
+        stage('Just test docker agent') {
+          agent {
+            docker {
+              image 'node:latest'
+            }
+          }
+
+          steps {
+            sh 'node -v'
+          }
+        }
+
+        stage('Test server') {
+          agent {
+            docker {
+              image 'node:12.16.3'
+              args "-v ${pwd()}/server:/app"
+            }
+          }
+
+          steps {
+            sh '''
+            cd server&&
+            npm install&&
+            ls&&
+            cat package.json&&
+            npm run test
+            '''
+          }
+        }
+
+        stage('Deploy frontend') {
+          steps {
+            dir ('./website') {
+              script {
+                withAWS(region:'ap-northeast-2', credentials:'jenkinsaws') {
+                  sh '''
+                  aws s3 sync ./ s3://namhoontest
+                  '''
+                }
+              }
+            }
+          }
+
+          post {
+              // If Maven was able to run the tests, even if some of the test
+              // failed, record the test results and archive the jar file.
+              success {
+                  echo 'Successfully Cloned Repository'
+
+                  mail  to: 'frontalnh@gmail.com',
+                        subject: "Deploy Frontend Success",
+                        body: "Successfully deployed frontend!"
+
+              }
+          }
+        }
+
+        stage('Build Server') {
+          agent any
+
+          steps {
+            sh '''
+            docker ps
+            '''
+
+            dir ('./server'){
+              script {
+                withAWS(region:'ap-northeast-2', credentials:'jenkinsaws') {
+                  def login = ecrLogin()
+                  sh "${login}"
+                  sh """
+                  docker build --build-arg env=${params.env} -t 551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver .
+                  docker push 551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver
+                  """
+                  // def image = docker.build('551342549342.dkr.ecr.ap-northeast-2.amazonaws.com/cicdserver')
+                  // image.push('latest')
+                }
+              }
+            }
+          }
+
+          post {
+            success {
+              mail  to: 'frontalnh@gmail.com',
+                    subject: "Deploy Success",
+                    body: "Successfully deployed!"
+                  
+            }
+
+            failure {
+              error 'This pipeline stops here...'
+            }
+
+            cleanup {
+              echo "Clean up docker images"
+              // sh '''
+              // docker rmi -f $(docker images -aq)
+              // '''
+            }
+          }
+        }
+    }
+}
