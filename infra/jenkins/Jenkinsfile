@@ -7,16 +7,21 @@ pipeline {
 
   // 각 단계를 명시
   stages {
-    stage('Just Test Script') {
+
+    stage('Prepare') {
       agent any
 
+      options {
+        timeout(time: 1, unit: 'HOURS')
+      }
+
       steps {
-        script {
-          def browsers = ['chrome', 'firefox']
-          for (int i=0;i<browsers.size();++i){
-            echo "Testing the ${browsers[i]} browser"
-          }
-        }
+        echo "Download branch: ${env.BRANCH_NAME}"
+        echo "${params.Greeting} World"
+        echo "Clonning Repository"
+        git url: 'https://github.com/frontalnh/cicd.git',
+            branch: "${env.BRANCH_NAME}",
+            credentialsId: 'jenkinsgit'
       }
     }
   }
