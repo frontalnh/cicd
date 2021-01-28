@@ -65,7 +65,7 @@ pipeline {
 
         // 그저 script 실행해봄
         stage('Just Test Script') {
-            agent any
+            agent { label 'slave' }
             // input {
             //     message "Should we continue?"
             //     ok "Yes, we should."
