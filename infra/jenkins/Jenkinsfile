@@ -282,8 +282,8 @@ pipeline {
                 sh """
                   aws ecs update-service \
                     --region ap-northeast-2 \
-                    --cluster ${DEPLOY_TO}-cicd \
-                    --service ${DEPLOY_TO}-cicd-server \
+                    --cluster webserver \
+                    --service cicdserver \
                     --force-new-deployment \
                     --desired-count 1
                 """
