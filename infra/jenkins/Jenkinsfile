@@ -1,3 +1,5 @@
+def DEPLOY_TO
+
 pipeline {
     // Agent Section
     // 젠킨스는 많은 일들을 해야 하기 때문에 혼자 하기 버겁다.
@@ -30,6 +32,22 @@ pipeline {
             echo "Build ID: ${env.BUILD_ID}"
             echo "Node Name: ${env.NODE_NAME}"
             echo "Node Labels: ${env.NODE_LABELS}"
+          }
+        }
+
+        stage('Decide Deploy To') {
+          steps {
+            script {
+              if (env.BRANCH_NAME == 'master'){
+                DEPLOY_TO = 'prod'
+              } else if (env.BRANCH_NAME == 'develop'){
+                DEPLOY_TO = 'dev'
+              } else if (env.BRANCH_NAME == 'qa'){
+                DEPLOY_TO = 'qa'
+              }
+            }
+            
+            echo "DEPLOY_TO: ${DEPLOY_TO}"
           }
         }
 
