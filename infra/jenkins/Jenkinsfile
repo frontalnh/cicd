@@ -23,6 +23,48 @@ pipeline {
             branch: "${env.BRANCH_NAME}",
             credentialsId: 'jenkinsgit'
       }
+
+      post {
+        success {
+          echo "Successfully Cloned Repository"
+        }
+
+        failure {
+          echo 'Failed....'
+        }
+
+        always {
+          echo 'Any way i tried'
+        }
+
+        cleanup {
+          echo 'after all other post condition'
+        }
+      }
+    }
+
+    stage('Only in master branch') {
+      when {
+        expression {
+          return env.BRANCH_NAME == 'master';
+        }
+      }
+
+      steps {
+        echo 'This is master branch'
+      }
+    }
+
+    stage('Only in dev branch') {
+      when {
+        expression {
+          return env.BRANCH_NAME == 'develop';
+        }
+      }
+
+      steps {
+        echo 'This is dev branch'
+      }
     }
   }
 }
