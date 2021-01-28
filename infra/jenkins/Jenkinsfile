@@ -55,19 +55,15 @@ pipeline {
       }
     }
 
-    stage('some parallel stage') {
-      parallel {
-        stage ('parallel stage1'){
-          steps {
-            echo 'this is parallel stage1'
-          }
+    stage('Test docker agent') {
+      agent {
+        docker {
+          image 'ubuntu:latest'
         }
+      }
 
-        stage ('parallel stage2'){
-          steps {
-            echo 'this is parallel stage2'
-          }
-        }
+      steps {
+        sh 'ls'
       }
     }
   }
