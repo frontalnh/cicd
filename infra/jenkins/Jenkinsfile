@@ -34,9 +34,7 @@ pipeline {
         stage('Read AWS Parameter store') {
           steps {
             script {
-              def params = sh(script: '''
-              aws ssm get-parameters --name /prod/mysql/host | jq '.Parameters[0].Value'
-              ''', returnStdout: true).trim()
+              def params = sh(script: "aws ssm get-parameters --name /prod/mysql/host | jq '.Parameters[0].Value'", returnStdout: true).trim()
 
               for (int i=0;i<params.size();++i){
                 echo "${params[i]}"
