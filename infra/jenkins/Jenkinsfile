@@ -55,15 +55,22 @@ pipeline {
       }
     }
 
-    stage('Test docker agent') {
+    stage('Test server') {
       agent {
         docker {
-          image 'ubuntu:latest'
+          image 'node:12.16.3'
+          args "-v ${pwd()}/server:/app"
         }
       }
 
       steps {
-        sh 'ls'
+        sh '''
+        cd server&&
+        npm install&&
+        ls&&
+        cat package.json&&
+        npm run test
+        '''
       }
     }
   }
