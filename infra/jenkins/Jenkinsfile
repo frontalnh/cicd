@@ -55,15 +55,19 @@ pipeline {
       }
     }
 
-    stage('Only in dev branch') {
-      when {
-        expression {
-          return env.BRANCH_NAME == 'develop';
+    stage('some parallel stage') {
+      parallel {
+        stage ('parallel stage1'){
+          steps {
+            echo 'this is parallel stage1'
+          }
         }
-      }
 
-      steps {
-        echo 'This is dev branch'
+        stage ('parallel stage2'){
+          steps {
+            echo 'this is parallel stage2'
+          }
+        }
       }
     }
   }
