@@ -5,6 +5,10 @@ pipeline {
     string(name: 'Greeting', defaultValue: 'Hello', description: 'How should I greet to the world?')
   }
 
+  environment {
+    HOME = '.'
+  }
+
   // 각 단계를 명시
   stages {
 
