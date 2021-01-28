@@ -25,10 +25,12 @@ pipeline {
     stages {
 
         stage('Log Build Info') {
-          echo "Branch: ${env.BRANCH_NAME}"
-          echo "Build ID: ${env.BUILD_ID}"
-          echo "Node Name: ${env.NODE_NAME}"
-          echo "Node Labels: ${env.NODE_LABELS}"
+          steps {
+            echo "Branch: ${env.BRANCH_NAME}"
+            echo "Build ID: ${env.BUILD_ID}"
+            echo "Node Name: ${env.NODE_NAME}"
+            echo "Node Labels: ${env.NODE_LABELS}"
+          }
         }
 
         stage('Read AWS Parameter store') {
