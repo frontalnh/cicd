@@ -228,6 +228,7 @@ pipeline {
         }
 
         stage('Build Server') {
+          agent { label 'slave' }
           steps {
             sh '''
             docker ps
