@@ -28,4 +28,3 @@ sudo -su jenkins
 Docker Pipeline: 파이프라인에서 도커 명령어 사용하게 해줌
 Pipeline: AWS Steps
 Docker
-
