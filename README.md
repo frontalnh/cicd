@@ -18,7 +18,6 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 # docker 그룹에 jenkins 추가
 sudo usermod -aG docker jenkins
-sudo systemctl start docker
 sudo service docker start
 sudo chmod 666 /var/run/docker.sock
 sudo -su jenkins
@@ -26,6 +25,7 @@ sudo -su jenkins
 
 ## 설치해야할 플러그인들
 
-AWS Global Configuration: Credential 에 AWS credential 등록하게 해줌
 Docker Pipeline: 파이프라인에서 도커 명령어 사용하게 해줌
 Pipeline: AWS Steps
+Docker
+
