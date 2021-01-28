@@ -286,6 +286,10 @@ pipeline {
                     --service cicdserver \
                     --force-new-deployment \
                     --desired-count 1
+
+                  aws ecs wait services-stable \
+                    --cluster webserver \
+                    --services cicdserver
                 """
               }
             }
