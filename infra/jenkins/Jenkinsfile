@@ -5,7 +5,7 @@ pipeline {
     // 젠킨스는 많은 일들을 해야 하기 때문에 혼자 하기 버겁다.
     // 여러 slave node 를 두고 일을 시킬 수 있는데, 이처럼 어떤 젠킨스가 일을 하게 할 것인지를 지정한다.
     // 젠킨스 노드 관리에서 새로 노드를 띄우거나 혹은 docker 이미지등을 통해 서 처리할 수 있음
-    agent none
+    agent 'master'
 
     // 파라미터 설
     parameters {
@@ -86,7 +86,6 @@ pipeline {
 
         // 레포지토리를 다운로드 받음
         stage('Prepare') {
-            agent any
             options {
                 timeout(time: 1, unit: 'HOURS') 
             }
@@ -229,8 +228,6 @@ pipeline {
         }
 
         stage('Build Server') {
-          agent any
-
           steps {
             sh '''
             docker ps
@@ -274,8 +271,6 @@ pipeline {
         }
 
         stage('Deploy Server') {
-          agent any
-
           steps {
             script {
               withAWS(region: 'ap-northeast-2', credentials: 'jenkinsaws') {
