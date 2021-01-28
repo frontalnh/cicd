@@ -36,9 +36,11 @@ pipeline {
         stage('Read AWS Parameter store') {
           steps {
             script {
-              def params = sh(script: "aws ssm get-parameters --name /prod/mysql/host | jq '.Parameters[0].Value'", returnStdout: true).trim()
+              withAWS(region:'ap-northeast-2', credentials:'jenkinsaws') {
+                def params = sh(script: "aws ssm get-parameters --name /prod/mysql/host | jq '.Parameters[0].Value'", returnStdout: true).trim()
 
-              echo "${params}"
+                echo "${params}"
+              }
             }
           }
         }
