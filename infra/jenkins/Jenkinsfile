@@ -55,9 +55,9 @@ pipeline {
           steps {
             script {
               withAWS(region:'ap-northeast-2', credentials:'jenkinsaws') {
-                def params = sh(script: "aws ssm get-parameters --name /prod/mysql/host | jq '.Parameters[0].Value'", returnStdout: true).trim()
-
-                echo "${params}"
+                def mysql_host = sh(script: "aws ssm get-parameters --name /${DEPLOY_TO}/mysql/host | jq '.Parameters[0].Value'", returnStdout: true).trim()
+                def params = sh(script: "aws ssm get-parameters --name /${DEPLOY_TO}/mysql/host | jq '.Parameters[0].Value'", returnStdout: true).trim()
+                echo "${mysql_host}"
               }
             }
           }
@@ -269,6 +269,25 @@ pipeline {
               // sh '''
               // docker rmi -f $(docker images -aq)
               // '''
+            }
+          }
+        }
+
+        stage('Deploy Server') {
+          agent any
+
+          steps {
+            script {
+              withAWS(region: 'ap-northeast-2', credentials: 'jenkinsaws') {
+                sh """
+                  aws ecs update-service \
+                    --region ap-northeast-2 \
+                    --cluster ${DEPLOY_TO}-cicd \
+                    --service ${DEPLOY_TO}-cicd-server \
+                    --force-new-deployment \
+                    --desired-count 1
+                """
+              }
             }
           }
         }
