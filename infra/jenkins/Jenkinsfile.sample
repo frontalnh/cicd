@@ -148,22 +148,14 @@ pipeline {
 
         stage('some parallel stage') {
           parallel {
-            stage ('parallel stage 1') {
+            stage ('frontend test') {
+              agent { label 'slave1' }
               when {
                 environment name: 'env', value:'prod'
               }
 
               steps {
                 echo 'This is prod'
-              }
-            }
-            stage ('parallel stage 2') {
-              when {
-                environment name: 'env', value:'dev'
-              }
-
-              steps {
-                echo 'This is dev'
               }
             }
           }
