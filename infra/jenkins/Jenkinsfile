@@ -98,6 +98,36 @@ pipeline {
           }
         }
       }
+
+      post {
+        success {
+          echo 'Successfully build webserver'
+
+          mail  to: 'frontalnh@gmail.com',
+                subject: "Build webserver succeeded",
+                body: "Build webserver succeeded"
+        }
+      }
+    }
+
+    stage('Deploy Server') {
+      steps {
+        script {
+          withAWS(region:'ap-northeat-2', credentials: 'jenkinsaws') {
+            sh """
+              aws ecs update-service \
+                --region ap-northeast-2 \
+                --cluster ${DEPLOY_TO}-app \
+                --service ${DEPLOY_TO}-webserver \
+                --force-new-deployment \
+                --desired-count 2
+              aws ecs wait services-stable \
+                --cluster ${DEPLOY_TO}-app \
+                --services ${DEPLOY_TO}-webserver
+            """
+          }
+        }
+      }
     }
   }
 }
