@@ -4,7 +4,7 @@ pipeline {
   agent any
 
   parameters {
-    string(name:'MYSQL_HOST', defaultValue: 'thisisdevhost', description: 'dev mysql host'),
+    string(name:'MYSQL_HOST', defaultValue: 'thisisdevhost', description: 'dev mysql host')
     string(name:'MYSQL_PASSWORD', defaultValue: 'thisisdevmysqlpassword', description: 'dev mysql password')
   }
 
