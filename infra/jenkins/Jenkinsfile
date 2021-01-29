@@ -37,14 +37,57 @@ pipeline {
       }
     }
 
+    stage('Build website') {
+      steps{
+        echo 'Build website'
+      }
+
+      post {
+        failure {
+          error 'Website Build Failed'
+        }
+      }
+    }
+
     stage('Deploy website') {
       steps{
         dir ('./website') {
           script {
             withAWS(region:'ap-northeast-2', credentials:'jenkinsaws') {
               sh """
+              pwd &&
               aws s3 sync ./ s3://${DEPLOY_TO}-namhoon-website
               """
+            }
+          }
+        }
+      }
+
+      post {
+        success {
+            echo "Successfully Deployed Website In ${DEPLOY_TO} environment"
+
+            mail  to: 'frontalnh@gmail.com',
+                  subject: "Successfully Deployed Website In ${DEPLOY_TO} environment",
+                  body: "Successfully Deployed Website In ${DEPLOY_TO} environment"
+        }
+
+        failure {
+          echo "Failed deploy website"
+          echo "Redeploy stable S3 bucket version"
+        }
+      }
+    }
+
+    stage('Build Server'){
+      steps {
+        dir('./server') {
+          script {
+            withAWS(region: 'ap-northeast-2', credentials: 'jenkinsaws') {
+              def login = ecrLogin()
+              echo "${login}"
+              // 실제 로그인
+              sh "${login}"
             }
           }
         }
