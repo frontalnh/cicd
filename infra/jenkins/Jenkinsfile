@@ -113,7 +113,7 @@ pipeline {
     stage('Deploy Server') {
       steps {
         script {
-          withAWS(region:'ap-northeat-2', credentials: 'jenkinsaws') {
+          withAWS(region:'ap-northeast-2', credentials: 'jenkinsaws') {
             sh """
               aws ecs update-service \
                 --region ap-northeast-2 \
