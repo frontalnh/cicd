@@ -9,7 +9,9 @@ COPY ./package.json /app/package.json
 RUN npm install
 
 ARG env
+ARG mysqlHost
 ENV APP_ENV=$env
+ENV MYSQL_HOST=$mysqlHost
 
 COPY . /app
 
