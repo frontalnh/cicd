@@ -36,5 +36,19 @@ pipeline {
         }
       }
     }
+
+    stage('Deploy website') {
+      steps{
+        dir ('./website') {
+          script {
+            withAWS(region:'ap-northeast-2', credentials:'jenkinsaws') {
+              sh """
+              aws s3 sync ./ s3://${DEPLOY_TO}-namhoon-website
+              """
+            }
+          }
+        }
+      }
+    }
   }
 }
